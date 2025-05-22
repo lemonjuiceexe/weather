@@ -23,6 +23,10 @@ export default function WeatherGraph() {
                     min: 15,
                     max: 25
                 }]}
+                xAxis={[{
+                    dataKey: "weekday",
+                    scaleType: "band",
+                }]}
                 series={[{
                     type: "line",
                     dataKey: "temperature",
@@ -33,16 +37,13 @@ export default function WeatherGraph() {
                 }}
                 sx={{
                     '& .MuiLineElement-root': {
-                        strokeWidth: 1,
+                        strokeWidth: 1
                     },
-                    ".MuiChartsAxis-line": {
-                        stroke: "white",
+                    '& .MuiChartsAxis-line, & .MuiChartsAxis-tick, & .MuiChartsAxis-root line': {
+                        stroke: 'white'
                     },
-                    ".MuiChartsAxis-tick": {
-                        stroke: "white",
-                    },
-                    ".MuiChartsAxis-tickLabel": {
-                        fill: "white",
+                    '& .MuiChartsAxis-tickLabel, & .MuiChartsAxis-root text': {
+                        fill: 'white'
                     },
                 }}
             />
