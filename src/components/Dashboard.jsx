@@ -2,6 +2,7 @@ import {useState, useEffect} from "react";
 import {fetchWeatherApi} from "openmeteo";
 import WeatherGraph from "./WeatherGraph.jsx";
 import styles from './Dashboard.module.css';
+import Tabs from "./ui/Tabs.jsx";
 
 const DUMMY_TEMPERATURES = [
     {date: "2021-10-01", weekday: "Fri", temperature: 20, rain: 63},
@@ -77,6 +78,16 @@ export default function Dashboard() {
             <h1>Hi☀</h1>
             <h2>{getCurrentDate()}</h2>
             <h2>It's currently {currentTemperature}°C in Adana, {timezone}</h2>
+
+            <Tabs>
+                <div label="Tab 1">
+                    <p>a</p>
+                </div>
+                <div label="Tab 2">
+                    <p>b</p>
+                </div>
+            </Tabs>
+
             <WeatherGraph weatherData={weatherData}/>
         </div>
     );

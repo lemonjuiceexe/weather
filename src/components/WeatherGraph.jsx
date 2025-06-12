@@ -1,19 +1,19 @@
-import {LineChart } from "@mui/x-charts";
+import {LineChart} from "@mui/x-charts";
 import styles from './WeatherGraph.module.css';
 
-function temperatureFormatter(temperature){
+function temperatureFormatter(temperature) {
     return `${temperature}°C`;
 }
+
 function rainFormatter(rain) {
     return `${rain} %`;
 }
 
 function MarkElement({x, y, color}) {
-    return (<circle className={styles.mark}  cx={x} cy={y} r={2} fill={color} />);
+    return (<circle className={styles.mark} cx={x} cy={y} r={2} fill={color}/>);
 }
 
-export default function WeatherGraph(props) {
-    const { weatherData } = props;
+export default function WeatherGraph({weatherData}) {
     console.log("Weather data:", weatherData);
 
     const minimumTemperature = weatherData.reduce((minimum, current) => Math.min(minimum, current.temperature), Infinity);
@@ -29,14 +29,18 @@ export default function WeatherGraph(props) {
                     id: "temperatureAxis",
                     type: "number",
                     dataKey: "temperature",
-                    domainLimit: (minimum, maximum) => {return {min: minimum - 5, max: maximum + 5};},
+                    domainLimit: (minimum, maximum) => {
+                        return {min: minimum - 5, max: maximum + 5};
+                    },
                     tickNumber: (maximumTemperature - minimumTemperature) / 2,
                     valueFormatter: temperatureFormatter
                 }, {
                     id: "rainAxis",
                     type: "number",
                     dataKey: "rain",
-                    domainLimit: () => { return { min: 0, max: 100}; },
+                    domainLimit: () => {
+                        return {min: 0, max: 100};
+                    },
                     tickNumber: 5,
                     valueFormatter: rainFormatter
                 }]}
@@ -45,7 +49,7 @@ export default function WeatherGraph(props) {
                     scaleType: "band",
                     valueFormatter: (value, context) => {
                         const record = weatherData.find(record => record.id === value);
-                        if(context.location === "tooltip") {
+                        if (context.location === "tooltip") {
                             return record.date;
                         }
                         return `${record.weekday}`;
