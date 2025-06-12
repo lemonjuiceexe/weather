@@ -14,7 +14,11 @@ const DUMMY_TEMPERATURES = [
 ];
 
 export default function Dashboard() {
+    const PAST_DAYS = 2;
+
     const [weatherData, setWeatherData] = useState(DUMMY_TEMPERATURES);
+    const [timezone, setTimezone] = useState("GMT+0");
+    const [currentTemperature, setCurrentTemperature] = useState(12);
 
     useEffect(() => {
         async function fetchWeather() {
@@ -23,15 +27,13 @@ export default function Dashboard() {
                 "longitude": 19.9366,
                 "daily": ["temperature_2m_mean", "precipitation_probability_mean", "wind_speed_10m_mean"],
                 "timezone": "Europe/Warsaw",
-                "past_days": 2,
+                "past_days": PAST_DAYS,
                 "wind_speed_unit": "ms"
             });
             response = response[0];
             const utcOffsetSeconds = response.utcOffsetSeconds();
-            const timezone = response.timezone();
             const timezoneAbbreviation = response.timezoneAbbreviation();
-            const latitude = response.latitude();
-            const longitude = response.longitude();
+            setTimezone(`${timezoneAbbreviation}`);
 
             const daily = response.daily();
 
@@ -51,14 +53,18 @@ export default function Dashboard() {
             setWeatherData(weatherData.daily.time.map((time, index) => ({
                 id: index,
                 date: time.toISOString().split('T')[0],
-                weekday: time.toLocaleDateString('en-US', { weekday: 'short' }),
+                weekday: time.toLocaleDateString('en-US', {weekday: 'short'}),
                 temperature: parseInt(weatherData.daily.temperature2m[index].toFixed(0)),
-                rain: Math.round(weatherData.daily.precipitationProbability[index] / 5) * 5  || null
+                rain: Math.round(weatherData.daily.precipitationProbability[index] / 5) * 5 || null
             })));
         }
 
         fetchWeather().catch(console.error);
     }, []);
+    useEffect(() => {
+        setCurrentTemperature(weatherData[PAST_DAYS].temperature);
+        console.log("Current temperature set to:", weatherData[PAST_DAYS].temperature);
+    }, [weatherData]);
 
     function getCurrentDate() {
         const currentDate = new Date();
@@ -70,7 +76,7 @@ export default function Dashboard() {
         <div className={styles.wrapper}>
             <h1>Hi☀</h1>
             <h2>{getCurrentDate()}</h2>
-            <h2>It's currently 12°C in Adana</h2>
+            <h2>It's currently {currentTemperature}°C in Adana, {timezone}</h2>
             <WeatherGraph weatherData={weatherData}/>
         </div>
     );
