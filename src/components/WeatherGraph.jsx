@@ -22,6 +22,7 @@ export default function WeatherGraph({weatherData}) {
     return (
         <div className={styles.wrapper}>
             <LineChart
+                // height={300}
                 dataset={weatherData}
                 leftAxis="temperatureAxis"
                 rightAxis="rainAxis"

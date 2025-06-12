@@ -80,15 +80,8 @@ export default function Dashboard() {
             <h2>It's currently {currentTemperature}°C in Adana, {timezone}</h2>
 
             <Tabs>
-                <div label="Tab 1">
-                    <p>a</p>
-                </div>
-                <div label="Tab 2">
-                    <p>b</p>
-                </div>
+                <WeatherGraph label="Week forecast" weatherData={weatherData} />
             </Tabs>
-
-            <WeatherGraph weatherData={weatherData}/>
         </div>
     );
 }
