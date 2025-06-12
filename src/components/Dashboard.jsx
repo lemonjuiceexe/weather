@@ -11,7 +11,8 @@ export default function Dashboard() {
     return (
         <div className={styles.wrapper}>
             <h1>Hi☀</h1>
-            <h2>It's currently 12°C in Adana, {getCurrentDate()}</h2>
+            <h2>{getCurrentDate()}</h2>
+            <h2>It's currently 12°C in Adana</h2>
             <WeatherGraph />
         </div>
     );

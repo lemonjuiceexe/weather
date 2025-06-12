@@ -1,16 +1,14 @@
 import {LineChart } from "@mui/x-charts";
-import { useItemTooltip, useMouseTracker } from '@mui/x-charts/ChartsTooltip';
-import { chartsTooltipClasses } from '@mui/x-charts/ChartsTooltip';
 import styles from './WeatherGraph.module.css';
 
 const DUMMY_TEMPERATURES = [
-    { date: "2021-10-01", weekday: "Fri", temperature: 20 },
-    { date: "2021-10-02", weekday: "Sat", temperature: 26 },
-    { date: "2021-10-03", weekday: "Sun", temperature: 21 },
-    { date: "2021-10-04", weekday: "Mon", temperature: 19 },
-    { date: "2021-10-05", weekday: "Tue", temperature: 18 },
-    { date: "2021-10-06", weekday: "Wed", temperature: 17 },
-    { date: "2021-10-07", weekday: "Thu", temperature: 20 },
+    { date: "2021-10-01", weekday: "Fri", temperature: 20, rain: 63 },
+    { date: "2021-10-02", weekday: "Sat", temperature: 26, rain: 22 },
+    { date: "2021-10-03", weekday: "Sun", temperature: 29, rain: 100 },
+    { date: "2021-10-04", weekday: "Mon", temperature: 28, rain: 0 },
+    { date: "2021-10-05", weekday: "Tue", temperature: 25, rain: 10 },
+    { date: "2021-10-06", weekday: "Wed", temperature: 22, rain: 0 },
+    { date: "2021-10-07", weekday: "Thu", temperature: 21, rain: 30 },
 ];
 
 
@@ -19,6 +17,9 @@ const maximumTemperature = DUMMY_TEMPERATURES.reduce((maximum, current) => Math.
 
 function temperatureFormatter(temperature){
     return `${temperature}°C`;
+}
+function rainFormatter(rain) {
+    return `${rain} %`;
 }
 
 function MarkElement({x, y, color}) {
@@ -30,15 +31,24 @@ export default function WeatherGraph() {
         return <p>Make sure there's no more than seven days of data</p>;
     return (
         <div className={styles.wrapper}>
-            <p>hi</p>
             <LineChart
                 dataset={DUMMY_TEMPERATURES}
+                leftAxis="temperatureAxis"
+                rightAxis="rainAxis"
                 yAxis={[{
+                    id: "temperatureAxis",
                     type: "number",
                     dataKey: "temperature",
                     domainLimit: (minimum, maximum) => {return {min: minimum - 5, max: maximum + 5};},
                     tickNumber: (maximumTemperature - minimumTemperature) / 2,
                     valueFormatter: temperatureFormatter
+                }, {
+                    id: "rainAxis",
+                    type: "number",
+                    dataKey: "rain",
+                    domainLimit: {min: 0, max: 100},
+                    tickNumber: 5,
+                    valueFormatter: rainFormatter
                 }]}
                 xAxis={[{
                     dataKey: "date",
@@ -54,14 +64,22 @@ export default function WeatherGraph() {
                 series={[{
                     type: "line",
                     dataKey: "temperature",
+                    yAxisId: "temperatureAxis",
                     color: "white",
                     valueFormatter: temperatureFormatter
-                }]}
+                }, {
+                    type: "line",
+                    dataKey: "rain",
+                    yAxisId: "rainAxis",
+                    color: "#4c9ce3",
+                    valueFormatter: rainFormatter
+                }]
+                }
                 grid={{
                     horizontal: true
                 }}
                 slots={{
-                    mark: MarkElement
+                    mark: MarkElement,
                 }}
                 sx={{
                     '& .MuiLineElement-root': {
