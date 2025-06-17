@@ -1,4 +1,6 @@
-import {LineChart} from "@mui/x-charts";
+import {ChartContainer, ChartsGrid, LinePlot, MarkPlot} from "@mui/x-charts";
+import {ChartsXAxis} from "@mui/x-charts/ChartsXAxis";
+import {ChartsYAxis} from "@mui/x-charts/ChartsYAxis";
 import styles from './WeatherGraph.module.css';
 
 function temperatureFormatter(temperature) {
@@ -19,7 +21,6 @@ export default function WeatherGraph({weatherData, pastDays}) {
     const minimumTemperature = weatherData.reduce((minimum, current) => Math.min(minimum, current.temperature), Infinity);
     const maximumTemperature = weatherData.reduce((maximum, current) => Math.max(maximum, current.temperature), -Infinity);
 
-
     const pastTemperatures = weatherData.map((record, index) => index < pastDays ? record.temperature : null);
     const temperatures = weatherData.map((record, index) => index >= pastDays ? record.temperature : null);
     const pastRain = weatherData.map((record, index) => index < pastDays ? record.rain : null);
@@ -27,32 +28,14 @@ export default function WeatherGraph({weatherData, pastDays}) {
 
     return (
         <div className={styles.wrapper}>
-            <LineChart
+            <ChartContainer
                 dataset={weatherData}
-                leftAxis="temperatureAxis"
-                rightAxis="rainAxis"
-                yAxis={[{
-                    id: "temperatureAxis",
-                    type: "number",
-                    dataKey: "temperature",
-                    domainLimit: (minimum, maximum) => {
-                        return {min: minimum - 5, max: maximum + 5};
-                    },
-                    tickNumber: (maximumTemperature - minimumTemperature) / 2,
-                    valueFormatter: temperatureFormatter
-                }, {
-                    id: "rainAxis",
-                    type: "number",
-                    dataKey: "rain",
-                    domainLimit: () => {
-                        return {min: 0, max: 100};
-                    },
-                    tickNumber: 5,
-                    valueFormatter: rainFormatter
-                }]}
                 xAxis={[{
-                    dataKey: "id",
-                    scaleType: "band",
+                    scaleType: 'band',
+                    position: 'bottom',
+                    data: weatherData.map(record => record.id),
+                    id: 'xAxis',
+                    label: 'Date',
                     valueFormatter: (value, context) => {
                         const record = weatherData.find(record => record.id === value);
                         if (context.location === "tooltip") {
@@ -61,60 +44,77 @@ export default function WeatherGraph({weatherData, pastDays}) {
                         return `${record.weekday}`;
                     }
                 }]}
-                series={[{
-                    type: "line",
-                    data: temperatures,
-                    yAxisId: "temperatureAxis",
-                    color: "red",
-                    connectNulls: true,
-                    valueFormatter: temperatureFormatter
-                },
-                {
-                    type: "line",
-                    data: pastTemperatures,
-                    yAxisId: "temperatureAxis",
-                    color: "blue",
-                    connectNulls: true,
-                    valueFormatter: temperatureFormatter
-                },
-                {
-                    type: "line",
-                    dataKey: "rain",
-                    yAxisId: "rainAxis",
-                    color: "#74bdff",
-                    connectNulls: true,
-                    valueFormatter: rainFormatter
-                }, {
-                    type: "line",
-                    dataKey: "pastRain",
-                    yAxisId: "rainAxis",
-                    color: "#b0b0b0",
-                    connectNulls: true,
-                    valueFormatter: rainFormatter
+                yAxis={[
+                    { id: 'temperatureAxis', position: 'right' },
+                    { id: 'rainAxis', position: 'left' },
+                ]}
+                series={
+                    [
+                        {
+                            id: 'temperature',
+                            type: 'line',
+                            xAxisId: 'xAxis',
+                            yAxisId: 'temperatureAxis',
+                            data: pastTemperatures,
+                            markElement: MarkElement,
+                            color: '#ff9800',
+                            connectNulls: true,
+                        },
+                        {
+                            id: 'rain',
+                            type: 'line',
+                            xAxisId: 'xAxis',
+                            yAxisId: 'rainAxis',
+                            data: pastRain,
+                            markElement: MarkElement,
+                            color: '#2196f3',
+                            connectNulls: true,
+                        },
+                        {
+                            id: 'currentTemperature',
+                            type: 'line',
+                            xAxisId: 'xAxis',
+                            yAxisId: 'temperatureAxis',
+                            data: temperatures,
+                            markElement: MarkElement,
+                            color: '#f44336',
+                            connectNulls: true,
+                        },
+                        {
+                            id: 'currentRain',
+                            type: 'line',
+                            xAxisId: 'xAxis',
+                            yAxisId: 'rainAxis',
+                            data: rain,
+                            markElement: MarkElement,
+                            color: '#4caf50',
+                            connectNulls: true,
+                        },
+                        {
+                            id: 'testRain',
+                            type: 'line',
+                            xAxisId: 'xAxis',
+                            yAxisId: 'rainAxis',
+                            data: weatherData.map(() => 10), // All 10s
+                            color: '#00ff00',
+                            connectNulls: true,
+                        }
+                    ]
                 }
-                ]
-                }
-                grid={{
-                    horizontal: true
-                }}
-                slots={{
-                    mark: MarkElement,
-                }}
                 sx={{
-                    '& .MuiLineElement-root': {
-                        strokeWidth: 1
-                    },
-                    '& .MuiChartsAxis-line, & .MuiChartsAxis-tick, & .MuiChartsAxis-root line': {
-                        stroke: 'white'
-                    },
-                    '& .MuiChartsGrid-line': {
-                        stroke: '#b0b0b0'
-                    },
-                    '& .MuiChartsAxis-tickLabel, & .MuiChartsAxis-root text': {
-                        fill: 'white'
-                    },
+                    '& .MuiLineElement-root': { strokeWidth: 1 },
+                    '& .MuiChartsAxis-line, & .MuiChartsAxis-tick, & .MuiChartsAxis-root line': { stroke: 'white' },
+                    '& .MuiChartsGrid-line': { stroke: '#b0b0b0' },
+                    '& .MuiChartsAxis-tickLabel, & .MuiChartsAxis-root text': { fill: 'white' },
                 }}
-            />
+            >
+                <ChartsXAxis axisId="xAxis" label="Date" />
+                <ChartsYAxis axisId="temperatureAxis" label="Temperature" />
+                <ChartsYAxis axisId="rainAxis" label="Rain" />
+                <LinePlot />
+                <MarkPlot />
+            </ChartContainer>
         </div>
     );
 }
+
