@@ -27,6 +27,7 @@ export default function Dashboard() {
                 "latitude": 50.0614,
                 "longitude": 19.9366,
                 "daily": ["temperature_2m_mean", "precipitation_probability_mean", "wind_speed_10m_mean"],
+                "hourly": ["temperature_2m", "precipitation_probability", "wind_speed_10m", "is_day"],
                 "timezone": "Europe/Warsaw",
                 "past_days": PAST_DAYS,
                 "wind_speed_unit": "ms"
@@ -49,6 +50,15 @@ export default function Dashboard() {
                     precipitationProbability: daily.variables(2).valuesArray(),
                     windSpeed10m: daily.variables(3).valuesArray(),
                 },
+                hourly: {
+                    time: [...Array((Number(daily.timeEnd()) - Number(daily.time())) / daily.interval())].map(
+                        (_, i) => new Date((Number(daily.time()) + i * daily.interval() + utcOffsetSeconds) * 1000)
+                    ),
+                    temperature2m: daily.variables(0).valuesArray(),
+                    precipitationProbability: daily.variables(1).valuesArray(),
+                    windSpeed10m: daily.variables(2).valuesArray(),
+                    isDay: daily.variables(3).valuesArray()
+                }
             };
             console.log("Weather data fetched:", weatherData);
             setWeatherData(weatherData.daily.time.map((time, index) => ({
@@ -80,7 +90,7 @@ export default function Dashboard() {
             <h2>It's currently {currentTemperature}°C in Adana, {timezone}</h2>
 
             <Tabs>
-                <WeatherGraph label="Week forecast" weatherData={weatherData} />
+                <WeatherGraph label="Week forecast" weatherData={weatherData} pastDays={PAST_DAYS} />
             </Tabs>
         </div>
     );

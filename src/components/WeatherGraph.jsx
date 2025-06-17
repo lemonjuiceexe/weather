@@ -13,16 +13,21 @@ function MarkElement({x, y, color}) {
     return (<circle className={styles.mark} cx={x} cy={y} r={2} fill={color}/>);
 }
 
-export default function WeatherGraph({weatherData}) {
+export default function WeatherGraph({weatherData, pastDays}) {
     console.log("Weather data:", weatherData);
 
     const minimumTemperature = weatherData.reduce((minimum, current) => Math.min(minimum, current.temperature), Infinity);
     const maximumTemperature = weatherData.reduce((maximum, current) => Math.max(maximum, current.temperature), -Infinity);
 
+
+    const pastTemperatures = weatherData.map((record, index) => index < pastDays ? record.temperature : null);
+    const temperatures = weatherData.map((record, index) => index >= pastDays ? record.temperature : null);
+    const pastRain = weatherData.map((record, index) => index < pastDays ? record.rain : null);
+    const rain = weatherData.map((record, index) => index >= pastDays ? record.rain : null);
+
     return (
         <div className={styles.wrapper}>
             <LineChart
-                // height={300}
                 dataset={weatherData}
                 leftAxis="temperatureAxis"
                 rightAxis="rainAxis"
@@ -58,17 +63,36 @@ export default function WeatherGraph({weatherData}) {
                 }]}
                 series={[{
                     type: "line",
-                    dataKey: "temperature",
+                    data: temperatures,
                     yAxisId: "temperatureAxis",
-                    color: "white",
+                    color: "red",
+                    connectNulls: true,
                     valueFormatter: temperatureFormatter
-                }, {
+                },
+                {
+                    type: "line",
+                    data: pastTemperatures,
+                    yAxisId: "temperatureAxis",
+                    color: "blue",
+                    connectNulls: true,
+                    valueFormatter: temperatureFormatter
+                },
+                {
                     type: "line",
                     dataKey: "rain",
                     yAxisId: "rainAxis",
                     color: "#74bdff",
+                    connectNulls: true,
                     valueFormatter: rainFormatter
-                }]
+                }, {
+                    type: "line",
+                    dataKey: "pastRain",
+                    yAxisId: "rainAxis",
+                    color: "#b0b0b0",
+                    connectNulls: true,
+                    valueFormatter: rainFormatter
+                }
+                ]
                 }
                 grid={{
                     horizontal: true
