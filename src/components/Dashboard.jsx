@@ -4,7 +4,7 @@ import WeatherGraph from "./WeatherGraph.jsx";
 import styles from './Dashboard.module.css';
 import Tabs from "./ui/Tabs.jsx";
 
-const DUMMY_TEMPERATURES = [
+const DUMMY_DAILY_TEMPERATURES = [
     {date: "2021-10-01", weekday: "Fri", temperature: 20, rain: 63},
     {date: "2021-10-02", weekday: "Sat", temperature: 26, rain: 22},
     {date: "2021-10-03", weekday: "Sun", temperature: 29, rain: 100},
@@ -13,11 +13,21 @@ const DUMMY_TEMPERATURES = [
     {date: "2021-10-06", weekday: "Wed", temperature: 22, rain: 0},
     {date: "2021-10-07", weekday: "Thu", temperature: 21, rain: 30},
 ];
+const DUMMY_HOURLY_TEMPERATURES = [
+    {date: "2021-10-01T00:00:00Z", temperature: 18, rain: 0},
+    {date: "2021-10-01T01:00:00Z", temperature: 17, rain: 0},
+    {date: "2021-10-01T02:00:00Z", temperature: 16, rain: 0},
+    {date: "2021-10-01T03:00:00Z", temperature: 15, rain: 0},
+    {date: "2021-10-01T04:00:00Z", temperature: 14, rain: 0},
+    {date: "2021-10-01T05:00:00Z", temperature: 13, rain: 0},
+    {date: "2021-10-01T06:00:00Z", temperature: 12, rain: 0},
+];
 
 export default function Dashboard() {
     const PAST_DAYS = 2;
 
-    const [weatherData, setWeatherData] = useState(DUMMY_TEMPERATURES);
+    const [dailyWeatherData, setDailyWeatherData] = useState(DUMMY_DAILY_TEMPERATURES);
+    const [hourlyWeatherData, setHourlyWeatherData] = useState([]);
     const [timezone, setTimezone] = useState("GMT+0");
     const [currentTemperature, setCurrentTemperature] = useState(12);
 
@@ -37,7 +47,7 @@ export default function Dashboard() {
             const timezoneAbbreviation = response.timezoneAbbreviation();
             setTimezone(`${timezoneAbbreviation}`);
 
-            const daily = response.daily();
+            const [daily, hourly] = [response.daily(), response.hourly()];
 
             // Note: The order of weather variables in the URL query and the indices below need to match!
             const weatherData = {
@@ -51,31 +61,38 @@ export default function Dashboard() {
                     windSpeed10m: daily.variables(3).valuesArray(),
                 },
                 hourly: {
-                    time: [...Array((Number(daily.timeEnd()) - Number(daily.time())) / daily.interval())].map(
-                        (_, i) => new Date((Number(daily.time()) + i * daily.interval() + utcOffsetSeconds) * 1000)
+                    time: [...Array((Number(hourly.timeEnd()) - Number(hourly.time())) / hourly.interval())].map(
+                        (_, i) => new Date((Number(hourly.time()) + i * hourly.interval() + utcOffsetSeconds) * 1000)
                     ),
-                    temperature2m: daily.variables(0).valuesArray(),
-                    precipitationProbability: daily.variables(1).valuesArray(),
-                    windSpeed10m: daily.variables(2).valuesArray(),
-                    isDay: daily.variables(3).valuesArray()
-                }
+                    temperature2m: hourly.variables(0).valuesArray(),
+                    precipitationProbability: hourly.variables(1).valuesArray(),
+                    windSpeed10m: hourly.variables(2).valuesArray(),
+                    isDay: hourly.variables(3).valuesArray(),
+                },
             };
             console.log("Weather data fetched:", weatherData);
-            setWeatherData(weatherData.daily.time.map((time, index) => ({
+            setDailyWeatherData(weatherData.daily.time.map((time, index) => ({
                 id: index,
                 date: time.toISOString().split('T')[0],
                 weekday: time.toLocaleDateString('en-US', {weekday: 'short'}),
                 temperature: parseInt(weatherData.daily.temperature2m[index].toFixed(0)),
                 rain: Math.round(weatherData.daily.precipitationProbability[index] / 5) * 5 || null
             })));
+            setHourlyWeatherData(weatherData.hourly.time.map((time, index) => ({
+                id: index,
+                date: time.toISOString(),
+                temperature: parseInt(weatherData.hourly.temperature2m[index].toFixed(0)),
+                rain: Math.round(weatherData.hourly.precipitationProbability[index] / 5) * 5 || null,
+                isDay: weatherData.hourly.isDay[index]
+            })));
         }
 
         fetchWeather().catch(console.error);
     }, []);
     useEffect(() => {
-        setCurrentTemperature(weatherData[PAST_DAYS].temperature);
-        console.log("Current temperature set to:", weatherData[PAST_DAYS].temperature);
-    }, [weatherData]);
+        setCurrentTemperature(hourlyWeatherData[PAST_DAYS * 24].temperature);
+        console.log("Hourly: ", hourlyWeatherData);
+    }, [hourlyWeatherData]);
 
     function getCurrentDate() {
         const currentDate = new Date();
@@ -85,12 +102,12 @@ export default function Dashboard() {
 
     return (
         <div className={styles.wrapper}>
-            <h1>Hi☀</h1>
+            <h1>Hi🌙☀️</h1>
             <h2>{getCurrentDate()}</h2>
             <h2>It's currently {currentTemperature}°C in Adana, {timezone}</h2>
 
             <Tabs>
-                <WeatherGraph label="Week forecast" weatherData={weatherData} pastDays={PAST_DAYS} />
+                <WeatherGraph label="Week forecast" weatherData={dailyWeatherData} pastDays={PAST_DAYS} />
             </Tabs>
         </div>
     );
