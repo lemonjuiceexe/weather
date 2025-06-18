@@ -1,10 +1,19 @@
-import {Bar, CartesianGrid, Cell, ComposedChart, Line, ResponsiveContainer, Tooltip, XAxis, YAxis} from "recharts";
+import {
+    ResponsiveContainer,
+    ComposedChart,
+    XAxis,
+    YAxis,
+    Line, Bar, Cell,
+    CartesianGrid,
+    ReferenceLine,
+    Label,
+    Tooltip
+} from "recharts";
 import styles from './WeatherGraph.module.css';
 
 function temperatureFormatter(temperature) {
     return `${temperature}°C`;
 }
-
 function rainFormatter(rain) {
     return `${rain} %`;
 }
@@ -23,7 +32,6 @@ function TooltipElement({active, payload, _}) {
 }
 
 export default function WeatherGraph({weatherData, pastDays}) {
-
     const minimumTemperature = weatherData.reduce((minimum, current) => Math.min(minimum, current.temperature), Infinity);
     const maximumTemperature = weatherData.reduce((maximum, current) => Math.max(maximum, current.temperature), -Infinity);
 
@@ -39,13 +47,29 @@ export default function WeatherGraph({weatherData, pastDays}) {
         <div className={styles.wrapper}>
             <ResponsiveContainer width="100%" height="100%">
                 <ComposedChart data={weatherData}>
-                    <XAxis dataKey="date" stroke={"#fff"} tickFormatter={date => new Date(date).toLocaleDateString('en-US', {weekday: 'short'})} />
-                    <YAxis yAxisId="temperature" datakey="temperature" orientation="left" domain={[minimumTemperature - 5, maximumTemperature + 5]} tickFormatter={temperatureFormatter} stroke={"#fff"} />
-                    <YAxis yAxisId="rain" dataKey="rain" orientation="right" domain={[0, 100]} tickFormatter={rainFormatter} stroke={"#fff"} />
+                    <XAxis xAxisId="dateAxis" dataKey="date" stroke={"#fff"}
+                        tickFormatter={date => new Date(date).toLocaleDateString('en-US', {weekday: 'short'})}
+                    />
+                    <YAxis yAxisId="temperatureAxis" datakey="temperature" orientation="left" stroke={"#fff"}
+                        domain={[minimumTemperature - 5, maximumTemperature + 5]}
+                        tickFormatter={temperatureFormatter}
+                    />
+                    <YAxis yAxisId="rainAxis" dataKey="rain" orientation="right" stroke={"#fff"}
+                        domain={[0, 100]}
+                        tickFormatter={rainFormatter}
+                    />
                     <CartesianGrid vertical={false} stroke={"#a1a1a1"} />
-                    <Line yAxisId="temperature" type="monotone" dataKey="temperature" stroke={"#fff"} dot={false} />
-                    <Line yAxisId="temperature" type="monotone" dataKey="pastTemperature" stroke={"#a1a1a1"} dot={false} />
-                    <Bar yAxisId="rain" type="monotone" dataKey="rain" fill={"#71b5fa"}>
+                    <ReferenceLine xAxisId="dateAxis" yAxisId="temperatureAxis" stroke={"#a1a1a1"} strokeDasharray="5 3"
+                        x={weatherData[pastDays].date}>
+                        <Label position="insideTop" value="Today" fill={"rgba(255, 255, 255, 0.9)"} fontSize="14" />
+                    </ReferenceLine>
+                    <Line yAxisId="temperatureAxis" xAxisId="dateAxis" dataKey="temperature"
+                        type="monotone" stroke={"#fff"} dot={false}
+                    />
+                    <Line yAxisId="temperatureAxis" xAxisId="dateAxis" dataKey="pastTemperature"
+                        type="monotone" stroke={"#a1a1a1"} dot={false}
+                    />
+                    <Bar yAxisId="rainAxis" xAxisId="dateAxis" dataKey="rain" type="monotone" fill={"#71b5fa"}>
                         {weatherData.map((day, index) => (
                             <Cell key={`cell-${index}`} fill={index >= pastDays ? '#71b5fa' : '#a1a1a1'} />
                         ))}
