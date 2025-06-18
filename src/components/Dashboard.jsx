@@ -30,6 +30,7 @@ export default function Dashboard() {
     const [hourlyWeatherData, setHourlyWeatherData] = useState([]);
     const [timezone, setTimezone] = useState("GMT+0");
     const [currentTemperature, setCurrentTemperature] = useState(12);
+    const [currentlyDay, setCurrentlyDay] = useState(true);
 
     useEffect(() => {
         async function fetchWeather() {
@@ -47,7 +48,8 @@ export default function Dashboard() {
             const timezoneAbbreviation = response.timezoneAbbreviation();
             setTimezone(`${timezoneAbbreviation}`);
 
-            const [daily, hourly] = [response.daily(), response.hourly()];
+            const daily = response.daily();
+            const hourly = response.hourly();
 
             // Note: The order of weather variables in the URL query and the indices below need to match!
             const weatherData = {
@@ -90,7 +92,9 @@ export default function Dashboard() {
         fetchWeather().catch(console.error);
     }, []);
     useEffect(() => {
+        if (hourlyWeatherData.length < PAST_DAYS * 24) return;
         setCurrentTemperature(hourlyWeatherData[PAST_DAYS * 24].temperature);
+        setCurrentlyDay(hourlyWeatherData[PAST_DAYS * 24].isDay);
         console.log("Hourly: ", hourlyWeatherData);
     }, [hourlyWeatherData]);
 
@@ -102,7 +106,7 @@ export default function Dashboard() {
 
     return (
         <div className={styles.wrapper}>
-            <h1>Hi🌙☀️</h1>
+            <h1>Hi{currentlyDay ? "☀️" : "🌙"}</h1>
             <h2>{getCurrentDate()}</h2>
             <h2>It's currently {currentTemperature}°C in Adana, {timezone}</h2>
 
