@@ -38,6 +38,8 @@ export default [
             'semi': ['error', 'always'],
             'block-spacing': ['error', 'always'],
             'space-before-blocks': ['error', 'always'],
+
+            'react/prop-types': 'off',
         },
     },
 ];
