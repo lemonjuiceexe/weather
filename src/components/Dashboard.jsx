@@ -32,6 +32,18 @@ export default function Dashboard() {
     const [currentTemperature, setCurrentTemperature] = useState(12);
     const [currentlyDay, setCurrentlyDay] = useState(true);
 
+    const currentDate = new Date();
+    const time = currentDate.toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit', hour12: false});
+
+    function getDateString(currentDate) {
+        const weekDay = currentDate.toLocaleDateString('en-US', {weekday: 'long'});
+        const day = currentDate.getDate().toString().padStart(2, "0");
+        const month = currentDate.getMonth().toString().padStart(2, "0");
+        const year = currentDate.getFullYear();
+
+        return `${weekDay}, ${day}.${month}.${year}`;
+    }
+
     useEffect(() => {
         async function fetchWeather() {
             let response = await fetchWeatherApi("https://api.open-meteo.com/v1/forecast", {
@@ -99,17 +111,11 @@ export default function Dashboard() {
         console.log("Hourly: ", hourlyWeatherData);
     }, [hourlyWeatherData]);
 
-    function getCurrentDate() {
-        const currentDate = new Date();
-        const weekDay = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][currentDate.getDay()];
-        return `${weekDay} ${currentDate.getDay()}.${currentDate.getMonth()}.${currentDate.getFullYear()}`;
-    }
-
     return (
         <div className={styles.wrapper}>
             <h1>Hi{currentlyDay ? "☀️" : "🌙"}</h1>
-            <h2>{getCurrentDate()}</h2>
-            <h2>It's currently {currentTemperature}°C in Adana, {timezone}</h2>
+            <h2>at {time} on {getDateString(currentDate)}</h2>
+            <h2>it's currently {currentTemperature}°C in Adana, {timezone}</h2>
 
             <Tabs>
                 <WeatherGraph label="Week forecast" weatherData={dailyWeatherData} pastDays={PAST_DAYS} />
