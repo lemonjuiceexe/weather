@@ -93,8 +93,9 @@ export default function Dashboard() {
     }, []);
     useEffect(() => {
         if (hourlyWeatherData.length < PAST_DAYS * 24) return;
-        setCurrentTemperature(hourlyWeatherData[PAST_DAYS * 24].temperature);
-        setCurrentlyDay(hourlyWeatherData[PAST_DAYS * 24].isDay);
+        const currentHour = new Date().getHours();
+        setCurrentTemperature(hourlyWeatherData[PAST_DAYS * 24 + currentHour].temperature);
+        setCurrentlyDay(hourlyWeatherData[PAST_DAYS * 24 + currentHour].isDay);
         console.log("Hourly: ", hourlyWeatherData);
     }, [hourlyWeatherData]);
 
