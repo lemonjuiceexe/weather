@@ -70,9 +70,8 @@ export default function Dashboard() {
                         (_, i) => new Date((Number(daily.time()) + i * daily.interval() + utcOffsetSeconds) * 1000)
                     ),
                     temperature2m: daily.variables(0).valuesArray(),
-                    relativeHumidity2m: daily.variables(1).valuesArray(),
-                    precipitationProbability: daily.variables(2).valuesArray(),
-                    windSpeed10m: daily.variables(3).valuesArray(),
+                    precipitationProbabilityMean: daily.variables(1).valuesArray(),
+                    windSpeed10m: daily.variables(2).valuesArray(),
                 },
                 hourly: {
                     time: [...Array((Number(hourly.timeEnd()) - Number(hourly.time())) / hourly.interval())].map(
@@ -85,13 +84,17 @@ export default function Dashboard() {
                 },
             };
             console.log("Weather data fetched:", weatherData);
-            setDailyWeatherData(weatherData.daily.time.map((time, index) => ({
-                id: index,
-                date: time.toISOString().split('T')[0],
-                weekday: time.toLocaleDateString('en-US', {weekday: 'short'}),
-                temperature: parseInt(weatherData.daily.temperature2m[index].toFixed(0)),
-                rain: Math.round(weatherData.daily.precipitationProbability[index] / 5) * 5 || null
-            })));
+            setDailyWeatherData(weatherData.daily.time.map((time, index) => {
+                let rain = weatherData.daily.precipitationProbabilityMean[index];
+                rain = rain < 5 ? null : Math.round(rain);
+                return {
+                    id: index,
+                    date: time.toISOString().split('T')[0],
+                    weekday: time.toLocaleDateString('en-US', {weekday: 'short'}),
+                    temperature: parseInt(weatherData.daily.temperature2m[index].toFixed(0)),
+                    rain: rain || null,
+                };
+            }));
             setHourlyWeatherData(weatherData.hourly.time.map((time, index) => ({
                 id: index,
                 date: time.toISOString(),
