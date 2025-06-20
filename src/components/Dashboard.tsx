@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { fetchWeatherApi } from "openmeteo";
-import WeatherGraph from "./WeatherGraph.jsx";
-import type { DailyWeatherData, HourlyWeatherData } from "../types.ts";
+import WeatherGraph from "./WeatherGraph.tsx";
 import Tabs from "./ui/Tabs.tsx";
+import type { DailyWeatherData, HourlyWeatherData } from "../types.ts";
 import styles from "./Dashboard.module.css";
 
 const DUMMY_DAILY_TEMPERATURES: DailyWeatherData[] = [
@@ -41,7 +41,7 @@ export default function Dashboard() {
     function getDateString(currentDate: Date): string {
         const weekDay: string = currentDate.toLocaleDateString("en-US", { weekday: "long" });
         const day: string = currentDate.getDate().toString().padStart(2, "0");
-        const month: string = currentDate.getMonth().toString().padStart(2, "0");
+        const month: string = (currentDate.getMonth() + 1).toString().padStart(2, "0");
         const year: string = currentDate.getFullYear().toString();
 
         return `${weekDay}, ${day}.${month}.${year}`;

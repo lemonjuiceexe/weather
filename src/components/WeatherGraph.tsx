@@ -35,7 +35,7 @@ function temperatureFormatter(temperature: number | string): string {
     return `${temperature}°C`;
 }
 function rainFormatter(rain: number | string): string {
-    return `${rain} %`;
+    return `${rain}%`;
 }
 
 function TooltipElement({ active, payload }: TooltipProps<ValueType, NameType>) {

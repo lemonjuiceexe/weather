@@ -1,5 +1,5 @@
 interface WeatherData {
-    id?: number,
+    id?: number;
     date: string;
     temperature: number;
     rain: number | null;
