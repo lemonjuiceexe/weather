@@ -41,13 +41,13 @@ export default function Tabs({ children }: Props) {
                 })}
             </div>
             <div className={styles.content}>
-                {childrenArray.map((child, index) => {
+                {childrenArray.map((child: ReactNode, index) => {
                     if (index !== activeTab) {
                         return null;
                     }
-                    const tabContent: ReactNode = isValidElement(child) && "props" in child && "children" in (child as ReactElement<TabProps>).props ?
-                        child : (child as ReactElement<TabProps>).props.children;
-
+                    const tabContent: ReactNode =
+                        isValidElement(child) && "props" in child && "children" in (child as ReactElement<TabProps>).props ?
+                            (child as ReactElement<TabProps>).props.children : child;
                     return (
                         <div key={index} className={styles.tabContent}>
                             {tabContent}

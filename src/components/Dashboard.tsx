@@ -129,7 +129,7 @@ export default function Dashboard() {
             <h2>it's currently {currentTemperature}°C in Adana, {timezone}</h2>
 
             <Tabs>
-                <WeatherGraph label="Week forecast" weatherData={dailyWeatherData} pastDays={PAST_DAYS} />
+                <WeatherGraph label="Weekly forecast" weatherData={dailyWeatherData} pastDays={PAST_DAYS} />
             </Tabs>
         </div>
     );
