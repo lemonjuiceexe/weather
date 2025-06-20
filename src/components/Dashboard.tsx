@@ -1,21 +1,9 @@
 import { useState, useEffect } from "react";
 import { fetchWeatherApi } from "openmeteo";
 import WeatherGraph from "./WeatherGraph.jsx";
+import type { DailyWeatherData, HourlyWeatherData } from "../types.ts";
 import Tabs from "./ui/Tabs.tsx";
 import styles from "./Dashboard.module.css";
-
-interface WeatherData {
-    id?: number,
-    date: string;
-    temperature: number;
-    rain: number | null;
-}
-interface DailyWeatherData extends WeatherData {
-    weekday: string;
-}
-interface HourlyWeatherData extends WeatherData {
-    isDay: boolean;
-}
 
 const DUMMY_DAILY_TEMPERATURES: DailyWeatherData[] = [
     { date: "2021-10-01", weekday: "Fri", temperature: 20, rain: 63 },
