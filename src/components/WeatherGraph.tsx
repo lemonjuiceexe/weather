@@ -44,7 +44,9 @@ function TooltipElement({ active, payload }: TooltipProps<ValueType, NameType>) 
         return (
             <div className={styles.tooltip}>
                 <p className={styles.label}>{record.date} ({record.weekday})</p>
-                <p className={styles.value}>{record.temperature !== undefined ? record.temperature : record.pastTemperature}°C</p>
+                <p className={styles.value}>
+                    {record.temperature !== undefined && record.temperature !== null ? record.temperature : record.pastTemperature}°C
+                </p>
                 <p className={styles.value}>{record.rain !== null ? `${record.rain}%` : "No rain"}</p>
             </div>
         );
