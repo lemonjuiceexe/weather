@@ -1,28 +1,68 @@
-import { useState, isValidElement, type ReactNode, type MouseEvent, type ReactElement } from "react";
+import {useState, isValidElement, type ReactNode, type MouseEvent, type ReactElement, useEffect} from "react";
 import styles from "./Tabs.module.css";
+
+interface RippleAnimationState {
+    event: MouseEvent<HTMLButtonElement> | null;
+    button: HTMLButtonElement | null;
+    radius: number;
+    active: boolean;
+}
 
 interface TabProps {
     label?: string;
     children?: ReactNode;
 }
 interface Props {
-    children?: ReactElement<TabProps> | ReactElement<TabProps>[];
+    children?: ReactElement<TabProps> | ReactElement<TabProps>[] | ReactNode;
 }
 
 export default function Tabs({ children }: Props) {
     const childrenArray: ReactNode[] = Array.isArray(children) ? children : [children];
     const [activeTab, setActiveTab] = useState(0);
+    const [rippleAnimation, setRippleAnimation] = useState<RippleAnimationState>({
+        event: null,
+        button: null,
+        radius: 0,
+        active: false
+    });
 
     function handleHeaderClick(event: MouseEvent<HTMLButtonElement>, index: number): void {
         setActiveTab(index);
-
-        (event.currentTarget as HTMLButtonElement).classList.add(styles.ripple);
-        function handleAnimationEnd(e: AnimationEvent): void {
-            (e.currentTarget as HTMLButtonElement)?.classList.remove(styles.ripple);
-            (e.currentTarget as HTMLButtonElement)?.removeEventListener("animationend", handleAnimationEnd);
-        }
-        event.currentTarget.addEventListener("animationend", handleAnimationEnd);
+        console.log(event.currentTarget)
+        setRippleAnimation({
+            event: event,
+            button: event.currentTarget,
+            radius: Math.max(event.currentTarget.clientWidth, event.currentTarget.clientHeight) / 2,
+            active: true
+        });
     }
+
+    useEffect(() => {
+        if (!rippleAnimation.active || !rippleAnimation.event) {
+            return;
+        }
+        document.querySelectorAll(`.${styles.ripple}`).forEach((element) => {
+            const circle = element as HTMLSpanElement;
+            const event: MouseEvent<HTMLButtonElement> = rippleAnimation.event!;
+            const button: HTMLButtonElement = rippleAnimation.button!;
+
+            circle.style.width = circle.style.height = `${rippleAnimation.radius * 2}px`;
+            circle.style.left = `${event!.clientX - (button.offsetLeft + rippleAnimation.radius)}px`;
+            circle.style.top = `${event!.clientY - (button.offsetTop + rippleAnimation.radius)}px`;
+            circle.classList.add("ripple");
+            circle.className = styles.ripple;
+            button.appendChild(circle);
+            circle.addEventListener("animationend", () => {
+                circle.classList.remove("ripple");
+                setRippleAnimation({
+                    active: false,
+                    event: null,
+                    button: null,
+                    radius: 0
+                });
+            });
+        })
+    }, [rippleAnimation]);
 
     return (
         <div className={styles.wrapper}>
@@ -36,6 +76,7 @@ export default function Tabs({ children }: Props) {
                         <button key={index} className={styles.header}
                             onClick={event => handleHeaderClick(event, index)}>
                             {label}
+                            {rippleAnimation && <span className={styles.ripple}></span>}
                         </button>
                     );
                 })}

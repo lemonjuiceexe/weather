@@ -62,10 +62,8 @@ export default function Dashboard() {
             const utcOffsetSeconds = response.utcOffsetSeconds();
             const timezoneAbbreviation = response.timezoneAbbreviation();
             setTimezone(`${timezoneAbbreviation}`);
-
             const daily = response.daily()!;
             const hourly = response.hourly()!;
-
             // Note: The order of weather variables in the URL query and the indices below need to match!
             const weatherData = {
                 daily: {
@@ -86,6 +84,7 @@ export default function Dashboard() {
                     isDay: hourly.variables(3)!.valuesArray()!
                 }
             };
+
             console.log("Weather data fetched:", weatherData);
             setDailyWeatherData(weatherData.daily.time.map((time, index) => {
                 let rain: (number | null) = weatherData.daily.precipitationProbabilityMean[index];
@@ -130,6 +129,7 @@ export default function Dashboard() {
 
             <Tabs>
                 <WeatherGraph label="Weekly forecast" weatherData={dailyWeatherData} pastDays={PAST_DAYS} />
+                Work in progress...
             </Tabs>
         </div>
     );
