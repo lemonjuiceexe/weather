@@ -125,7 +125,7 @@ export default function Dashboard() {
         <div className={styles.wrapper}>
             <h1>Hi{currentlyDay ? "☀️" : "🌙"}</h1>
             <h2>at {time} on {getDateString(currentDate)}</h2>
-            <h2>it's currently {currentTemperature}°C in Adana, {timezone}</h2>
+            <h2>it's currently {currentTemperature}°C in Kraków, {timezone}</h2>
 
             <Tabs>
                 <WeatherGraph label="Weekly forecast" weatherData={dailyWeatherData} pastDays={PAST_DAYS} />

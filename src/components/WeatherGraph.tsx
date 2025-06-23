@@ -103,17 +103,17 @@ export default function WeatherGraph({ weatherData, pastDays }: Props) {
                         x={weatherData[pastDays].date}>
                         <Label position="insideTop" value="Today" fill={"rgba(255, 255, 255, 0.9)"} fontSize="14" />
                     </ReferenceLine>
+                    <Bar yAxisId="rainAxis" xAxisId="dateAxis" dataKey="rain" type="monotone" fill={"#71b5fa"}>
+                        {weatherData.map((_, index) => (
+                            <Cell key={`cell-${index}`} fill={index >= pastDays ? "#71b5fa" : "#a1a1a1"} />
+                        ))}
+                    </Bar>
                     <Line yAxisId="temperatureAxis" xAxisId="dateAxis" dataKey="temperature"
                         type="monotone" stroke={"#fff"} dot={false}
                     />
                     <Line yAxisId="temperatureAxis" xAxisId="dateAxis" dataKey="pastTemperature"
                         type="monotone" stroke={"#a1a1a1"} dot={false}
                     />
-                    <Bar yAxisId="rainAxis" xAxisId="dateAxis" dataKey="rain" type="monotone" fill={"#71b5fa"}>
-                        {weatherData.map((_, index) => (
-                            <Cell key={`cell-${index}`} fill={index >= pastDays ? "#71b5fa" : "#a1a1a1"} />
-                        ))}
-                    </Bar>
                     <Tooltip content={TooltipElement} />
                 </ComposedChart>
             </ResponsiveContainer>
