@@ -107,7 +107,9 @@ export default function Dashboard() {
                         isDay: !!weatherData.hourly.isDay[index]
                     } as HourlyWeatherData)
                 ).filter((data: HourlyWeatherData) =>
-                    data.date.split("T")[0] == new Date().toISOString().split("T")[0]
+                    // Hourly data for today and yesterday
+                    data.date.split("T")[0] == new Date().toLocaleDateString("en-CA") ||
+                    data.date.split("T")[0] == new Date(Date.now() - 24 * 3600 * 1000).toLocaleDateString("en-CA")
                 )
             );
         }
@@ -118,8 +120,11 @@ export default function Dashboard() {
     useEffect(() => {
         if (hourlyWeatherData.length < PAST_DAYS * 24) return;
         const currentHour = new Date().getHours();
-        setCurrentTemperature(hourlyWeatherData[PAST_DAYS * 24 + currentHour].temperature);
-        setCurrentlyDay(hourlyWeatherData[PAST_DAYS * 24 + currentHour].isDay);
+        const currentWeather: HourlyWeatherData = hourlyWeatherData.find((el: HourlyWeatherData) =>
+            el.date.split("T")[1].slice(0, 2) == currentHour.toString().padStart(2, "0")! &&
+            el.date.split("T")[0] == new Date().toLocaleDateString("en-CA"))!;
+        setCurrentTemperature(currentWeather.temperature);
+        setCurrentlyDay(currentWeather.isDay);
         console.log("Hourly: ", hourlyWeatherData);
     }, [hourlyWeatherData]);
 
@@ -130,8 +135,8 @@ export default function Dashboard() {
             <h2>it's currently {currentTemperature}°C in Kraków, {timezone}</h2>
 
             <Tabs>
-                <WeatherGraph label="Weekly forecast" isHourly={false} weatherData={dailyWeatherData} pastDays={PAST_DAYS} />
-                <WeatherGraph label="Daily forecast" isHourly={true} weatherData={hourlyWeatherData} pastDays={0} />
+                <WeatherGraph label="Weekly forecast" isHourly={false} weatherData={dailyWeatherData} pastDaysOrHours={PAST_DAYS} />
+                <WeatherGraph label="Daily forecast" isHourly={true} weatherData={hourlyWeatherData} pastDaysOrHours={PAST_DAYS * 6} />
             </Tabs>
         </div>
     );
