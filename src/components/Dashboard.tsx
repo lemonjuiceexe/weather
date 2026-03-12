@@ -106,6 +106,8 @@ export default function Dashboard() {
                         rain: Math.round(weatherData.hourly.precipitationProbability[index] / 5) * 5 || null,
                         isDay: !!weatherData.hourly.isDay[index]
                     } as HourlyWeatherData)
+                ).filter((data: HourlyWeatherData) =>
+                    data.date.split("T")[0] == new Date().toISOString().split("T")[0]
                 )
             );
         }
@@ -128,8 +130,8 @@ export default function Dashboard() {
             <h2>it's currently {currentTemperature}°C in Kraków, {timezone}</h2>
 
             <Tabs>
-                <WeatherGraph label="Weekly forecast" weatherData={dailyWeatherData} pastDays={PAST_DAYS} />
-                Work in progress...
+                <WeatherGraph label="Weekly forecast" isHourly={false} weatherData={dailyWeatherData} pastDays={PAST_DAYS} />
+                <WeatherGraph label="Daily forecast" isHourly={true} weatherData={hourlyWeatherData} pastDays={0} />
             </Tabs>
         </div>
     );
