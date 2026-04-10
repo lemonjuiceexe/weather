@@ -135,8 +135,8 @@ export default function Dashboard() {
             <h2>it's currently {currentTemperature}°C in Kraków, {timezone}</h2>
 
             <Tabs>
-                <WeatherGraph label="Weekly forecast" isHourly={false} weatherData={dailyWeatherData} pastDaysOrHours={PAST_DAYS} />
-                <WeatherGraph label="Daily forecast" isHourly={true} weatherData={hourlyWeatherData} pastDaysOrHours={PAST_DAYS * 6} />
+                <WeatherGraph label="Weekly forecast" isHourly={false} weatherData={dailyWeatherData} pastDays={PAST_DAYS} />
+                <WeatherGraph label="Daily forecast" isHourly={true} weatherData={hourlyWeatherData} pastDays={PAST_DAYS} />
             </Tabs>
         </div>
     );

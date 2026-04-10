@@ -11,6 +11,7 @@ import {
 } from "recharts";
 import type { DailyWeatherData, HourlyWeatherData } from "../types.ts";
 import styles from "./WeatherGraph.module.css";
+import {useEffect, useState} from "react";
 
 interface ChartDailyWeatherData {
     id?: number,
@@ -65,29 +66,37 @@ function TooltipElement({ active, payload, isHourly }: { active?: boolean; paylo
 interface Props {
     label?: string;
     weatherData: DailyWeatherData[] | HourlyWeatherData[];
-    pastDaysOrHours: number;
+    pastDays: number;
     isHourly: boolean; // false - daily data
 }
 
-export default function WeatherGraph({ weatherData, pastDaysOrHours, isHourly }: Props) {
+export default function WeatherGraph({ weatherData, pastDays, isHourly }: Props) {
+    const pastHours = 2 * pastDays; // arbitrary value
     const minimumTemperature = weatherData.reduce((minimum, current) =>
         Math.min(minimum, current.temperature), Infinity);
     const maximumTemperature = weatherData.reduce((maximum, current) =>
         Math.max(maximum, current.temperature), -Infinity);
 
+    const [currentHour, setCurrentHour] = useState<number>(new Date().getHours());
+
+    useEffect(() => {
+        setInterval(() => {
+            setCurrentHour(new Date().getHours());
+        }, 1000 * 60 * 15);
+    }, []);
+
     let chartData: ChartDailyWeatherData[] | ChartHourlyWeatherData[];
     if(!isHourly) {
         chartData = (weatherData as DailyWeatherData[]).map((day: DailyWeatherData, index): ChartDailyWeatherData => ({
             ...day,
-            temperature: index < pastDaysOrHours ? null : day.temperature,
-            pastTemperature: index <= pastDaysOrHours ? day.temperature : null
+            temperature: index < pastDays ? null : day.temperature,
+            pastTemperature: index <= pastDays ? day.temperature : null
         }));
     } else {
-        //TODO: make it so that past weather is shown accordingly to pastDaysOrHours prop
-        chartData = (weatherData as HourlyWeatherData[]).map((day: HourlyWeatherData, index): ChartHourlyWeatherData => ({
+        chartData = (weatherData as HourlyWeatherData[]).slice((pastDays - 1) * 24 + (currentHour - pastHours)).map((day: HourlyWeatherData, index): ChartHourlyWeatherData => ({
             ...day,
-            temperature: index < pastDaysOrHours ? null : day.temperature,
-            pastTemperature: index <= pastDaysOrHours ? day.temperature : null
+            temperature: index < pastHours ? null : day.temperature,
+            pastTemperature: index <= pastHours ? day.temperature : null
         }));
     }
 
@@ -112,14 +121,14 @@ export default function WeatherGraph({ weatherData, pastDaysOrHours, isHourly }:
                         domain={[0, 100]}
                         tickFormatter={rainFormatter}
                     />
-                    <CartesianGrid vertical={false} stroke={"#a1a1a1"} />
+                    <CartesianGrid vertical={false} stroke={"#737373"} />
                     <ReferenceLine xAxisId="dateAxis" yAxisId="temperatureAxis" stroke={"#a1a1a1"} strokeDasharray="5 3"
-                        x={weatherData[pastDaysOrHours].date}>
+                        x={chartData[isHourly ? pastHours : pastDays].date}>
                         <Label position="insideTop" value={isHourly ? "Now" : "Today"} fill={"rgba(255, 255, 255, 0.9)"} fontSize="14" />
                     </ReferenceLine>
                     <Bar yAxisId="rainAxis" xAxisId="dateAxis" dataKey="rain" type="monotone" fill={"#71b5fa"}>
                         {weatherData.map((_, index) => (
-                            <Cell key={`cell-${index}`} fill={index >= pastDaysOrHours ? "#71b5fa" : "#a1a1a1"} />
+                            <Cell key={`cell-${index}`} fill={index >= pastDays ? "#71b5fa" : "#a1a1a1"} />
                         ))}
                     </Bar>
                     <Line yAxisId="temperatureAxis" xAxisId="dateAxis" dataKey="temperature"
